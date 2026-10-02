@@ -1,11 +1,11 @@
 import { useCallback, useState } from "react"
-import { toBattleError, type BattleErrorState } from "../lib/errors"
-import { fetchBattleProfile } from "../lib/github"
+import { toBattleError, type BattleErrorState } from "@/lib/errors"
+import { fetchBattleProfile } from "@/lib/github"
 import {
   MAX_TOURNAMENT_PLAYERS,
   MIN_TOURNAMENT_PLAYERS,
   parsePlayerLogins,
-} from "../lib/tournament"
+} from "@/lib/tournament"
 
 export type StandingsPhase = "setup" | "loading" | "board"
 

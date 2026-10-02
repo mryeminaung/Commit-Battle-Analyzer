@@ -1,17 +1,9 @@
 import { useCallback } from "react"
-import { useStandings } from "../../hooks/useStandings"
-import { readPlayersFromUrl } from "../../lib/modes"
-import { ErrorBanner } from "../ErrorBanner"
-import { PlayerSetupForm } from "./PlayerSetupForm"
-
-const DEMO_ROSTER = [
-  "torvalds",
-  "dan-abramov",
-  "yyx990803",
-  "rich-harris",
-  "microsoft",
-  "gaearon",
-].join("\n")
+import { useStandings } from "@/hooks/useStandings"
+import { DEMO_LINEUPS, type DemoLineup } from "@/lib/demos"
+import { readPlayersFromUrl } from "@/lib/modes"
+import { ErrorBanner } from "@/components/ErrorBanner"
+import { PlayerSetupForm } from "@/components/modes/PlayerSetupForm"
 
 type StandingsModeProps = {
   getAvatarSrc: (login: string, fallbackUrl: string) => string
@@ -23,6 +15,13 @@ export function StandingsMode({ getAvatarSrc }: StandingsModeProps) {
   const handleSubmit = useCallback(
     (text: string) => {
       void standings.loadStandings(text)
+    },
+    [standings],
+  )
+
+  const handleDemoSelect = useCallback(
+    (lineup: DemoLineup) => {
+      standings.setLoginsText(lineup.logins.join("\n"))
     },
     [standings],
   )
@@ -96,14 +95,15 @@ export function StandingsMode({ getAvatarSrc }: StandingsModeProps) {
     <>
       <PlayerSetupForm
         heading="Multiplayer standings"
-        description="Enter any lineup. Everyone is scored once on public GitHub signals and ranked on the board — no bracket, just the leaderboard."
+        description="Enter any lineup (or pick a demo 4 / 6 / 16). Everyone is scored once on public GitHub signals and ranked on the board."
         ctaLabel="Score lineup"
         loginsText={standings.loginsText}
         onLoginsChange={standings.setLoginsText}
+        demoLineups={DEMO_LINEUPS}
+        onDemoSelect={handleDemoSelect}
         error={standings.setupError}
         busy={standings.loading}
         onSubmit={handleSubmit}
-        onDemoFill={() => standings.setLoginsText(DEMO_ROSTER)}
       />
 
       {standings.error && (

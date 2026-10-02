@@ -5,7 +5,7 @@ import {
   resolveAvatarSrc,
   setCustomAvatar,
   type CustomAvatarMap,
-} from "../lib/avatars"
+} from "@/lib/avatars"
 
 export function useAvatars() {
   const [avatars, setAvatars] = useState<CustomAvatarMap>(() =>

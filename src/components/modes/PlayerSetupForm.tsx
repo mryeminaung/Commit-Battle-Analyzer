@@ -1,16 +1,12 @@
 import type { FormEvent, ReactNode } from "react"
-import { MAX_TOURNAMENT_PLAYERS, MIN_TOURNAMENT_PLAYERS } from "../../lib/tournament"
-
-const BRACKET_SIZES = [4, 8, 16] as const
-
-const DEMO_ROSTER = [
-  "torvalds",
-  "dan-abramov",
-  "yyx990803",
-  "rich-harris",
-  "microsoft",
-  "gaearon",
-].join("\n")
+import type { DemoLineup } from "@/lib/demos"
+import {
+  BRACKET_SIZE_AUTO,
+  BRACKET_SIZE_OPTIONS,
+  MAX_TOURNAMENT_PLAYERS,
+  MIN_TOURNAMENT_PLAYERS,
+  nextPowerOfTwo,
+} from "@/lib/tournament"
 
 type PlayerSetupFormProps = {
   heading: string
@@ -18,15 +14,23 @@ type PlayerSetupFormProps = {
   ctaLabel: string
   loginsText: string
   onLoginsChange: (value: string) => void
-  /** When provided, show bracket-size chips (tournament). */
+  /** 0 = auto (next power of two). Tournament only. */
   bracketSize?: number
   onBracketSizeChange?: (size: number) => void
+  demoLineups?: DemoLineup[]
+  onDemoSelect?: (lineup: DemoLineup) => void
   error?: string | null
   busy?: boolean
   onSubmit: (loginsText: string, bracketSize: number) => void
-  onDemoFill?: () => void
   extraActions?: ReactNode
 }
+
+const sizeChipClass = (active: boolean) =>
+  `min-h-9 cursor-pointer rounded-[2px] border px-3 font-display text-[0.82rem] font-bold tracking-[0.12em] tabular-nums uppercase transition-colors ${
+    active
+      ? "border-amber bg-amber-fill/20 text-amber"
+      : "border-line bg-transparent text-ink-dim hover:border-amber hover:text-amber"
+  }`
 
 export function PlayerSetupForm({
   heading,
@@ -36,15 +40,18 @@ export function PlayerSetupForm({
   onLoginsChange,
   bracketSize,
   onBracketSizeChange,
+  demoLineups,
+  onDemoSelect,
   error,
   busy,
   onSubmit,
-  onDemoFill,
   extraActions,
 }: PlayerSetupFormProps) {
+  const showBracket = bracketSize !== undefined && onBracketSizeChange
+
   const submit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault()
-    onSubmit(loginsText, bracketSize ?? MIN_TOURNAMENT_PLAYERS)
+    onSubmit(loginsText, bracketSize ?? BRACKET_SIZE_AUTO)
   }
 
   return (
@@ -64,36 +71,59 @@ export function PlayerSetupForm({
             onChange={(event) => onLoginsChange(event.target.value)}
             rows={6}
             spellCheck={false}
-            placeholder={"one handle per line\n\n" + DEMO_ROSTER.split("\n").slice(0, 3).join("\n")}
+            placeholder={
+              "one handle per line\n\ntorvalds\ndan-abramov\nyyx990803\nrich-harris"
+            }
             className="w-full resize-y rounded-[2px] border border-line-strong bg-deep px-3.5 py-3 font-display text-[1.05rem] font-semibold tracking-[0.03em] text-ink outline-none transition-colors placeholder:text-dim/70 focus:border-amber"
           />
         </label>
 
-        {bracketSize !== undefined && onBracketSizeChange && (
+        {showBracket && (
           <div className="flex flex-wrap items-center gap-2">
             <span className="font-display text-[0.72rem] font-bold tracking-[0.14em] text-dim uppercase">
-              Bracket size
+              Bracket
             </span>
-            {BRACKET_SIZES.map((size) => {
-              const active = size === bracketSize
-              return (
-                <button
-                  key={size}
-                  type="button"
-                  onClick={() => onBracketSizeChange(size)}
-                  className={`min-h-9 cursor-pointer rounded-[2px] border px-3 font-display text-[0.82rem] font-bold tracking-[0.12em] tabular-nums uppercase transition-colors ${
-                    active
-                      ? "border-amber bg-amber-fill/20 text-amber"
-                      : "border-line bg-transparent text-ink-dim hover:border-amber hover:text-amber"
-                  }`}
-                >
-                  {size}
-                </button>
-              )
-            })}
+            <button
+              type="button"
+              onClick={() => onBracketSizeChange!(BRACKET_SIZE_AUTO)}
+              className={sizeChipClass(bracketSize === BRACKET_SIZE_AUTO)}
+            >
+              Auto
+            </button>
+            {BRACKET_SIZE_OPTIONS.map((size) => (
+              <button
+                key={size}
+                type="button"
+                onClick={() => onBracketSizeChange!(size)}
+                className={sizeChipClass(bracketSize === size)}
+              >
+                {size}
+              </button>
+            ))}
             <span className="text-[0.8rem] text-dim">
-              {MIN_TOURNAMENT_PLAYERS}–{MAX_TOURNAMENT_PLAYERS} fighters · BYEs pad
-              the bracket
+              Auto → 4 / 8 / 16 from your lineup · 6 players = 8 bracket + BYEs
+            </span>
+          </div>
+        )}
+
+        {demoLineups && demoLineups.length > 0 && (
+          <div className="flex flex-wrap items-center gap-2">
+            <span className="font-display text-[0.72rem] font-bold tracking-[0.14em] text-dim uppercase">
+              Demo
+            </span>
+            {demoLineups.map((lineup) => (
+              <button
+                key={lineup.id}
+                type="button"
+                onClick={() => onDemoSelect?.(lineup)}
+                className={sizeChipClass(false)}
+              >
+                {lineup.label}
+              </button>
+            ))}
+            <span className="text-[0.8rem] text-dim">
+              {MIN_TOURNAMENT_PLAYERS}–{MAX_TOURNAMENT_PLAYERS} fighters · mock
+              roster, no API
             </span>
           </div>
         )}
@@ -115,20 +145,13 @@ export function PlayerSetupForm({
           >
             {busy ? "Loading…" : ctaLabel}
           </button>
-
-          {onDemoFill && (
-            <button
-              type="button"
-              onClick={onDemoFill}
-              className="min-h-11 cursor-pointer rounded-[2px] border border-line-strong bg-deep px-4 font-display text-[0.85rem] font-bold tracking-[0.12em] text-ink-dim uppercase transition-colors hover:border-amber hover:text-amber"
-            >
-              Fill demo roster
-            </button>
-          )}
-
           {extraActions}
         </div>
       </form>
     </section>
   )
 }
+
+/** Convenience: how many players a demo will imply for bracket size UI. */
+export const demoBracketHint = (playerCount: number): number =>
+  nextPowerOfTwo(Math.max(MIN_TOURNAMENT_PLAYERS, playerCount))

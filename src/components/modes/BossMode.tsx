@@ -1,13 +1,13 @@
 import { useCallback, useState } from "react"
-import { runBattle } from "../../lib/battle"
-import { toBattleError, type BattleErrorState } from "../../lib/errors"
-import { MOCK_PROFILES } from "../../lib/mocks"
-import type { BattleResult } from "../../lib/types"
-import { BattleSkeleton } from "../BattleSkeleton"
-import { ErrorBanner } from "../ErrorBanner"
-import { Scoreboard } from "../Scoreboard"
+import { runBattle } from "@/lib/battle"
+import { toBattleError, type BattleErrorState } from "@/lib/errors"
+import { MOCK_LOGINS, MOCK_PROFILES } from "@/lib/mocks"
+import type { BattleResult } from "@/lib/types"
+import { BattleSkeleton } from "@/components/BattleSkeleton"
+import { ErrorBanner } from "@/components/ErrorBanner"
+import { Scoreboard } from "@/components/Scoreboard"
 
-const BOSS_LOGINS = Object.keys(MOCK_PROFILES)
+const BOSS_LOGINS = MOCK_LOGINS
 
 type BossModeProps = {
   getAvatarSrc: (login: string, fallbackUrl: string) => string

@@ -1,12 +1,15 @@
 import { useCallback } from "react"
-import { useTournament } from "../../hooks/useTournament"
-import { readPlayersFromUrl } from "../../lib/modes"
-import { BattleSkeleton } from "../BattleSkeleton"
-import { ErrorBanner } from "../ErrorBanner"
-import { Scoreboard } from "../Scoreboard"
-import { BracketView } from "./BracketView"
-import { PlayerSetupForm } from "./PlayerSetupForm"
-import { TournamentChampion } from "./TournamentChampion"
+import { useTournament } from "@/hooks/useTournament"
+import { DEMO_LINEUPS, type DemoLineup } from "@/lib/demos"
+import { readPlayersFromUrl } from "@/lib/modes"
+import { BRACKET_SIZE_AUTO } from "@/lib/tournament"
+import { BattleSkeleton } from "@/components/BattleSkeleton"
+import { ErrorBanner } from "@/components/ErrorBanner"
+import { Scoreboard } from "@/components/Scoreboard"
+import { BracketView } from "@/components/modes/BracketView"
+import { MatchDetailPanel } from "@/components/modes/MatchDetailPanel"
+import { PlayerSetupForm } from "@/components/modes/PlayerSetupForm"
+import { TournamentChampion } from "@/components/modes/TournamentChampion"
 
 type AvatarHandlers = {
   getAvatarSrc: (login: string, fallbackUrl: string) => string
@@ -16,15 +19,6 @@ type AvatarHandlers = {
 }
 
 type TournamentModeProps = AvatarHandlers
-
-const DEMO_ROSTER = [
-  "torvalds",
-  "dan-abramov",
-  "yyx990803",
-  "rich-harris",
-  "microsoft",
-  "gaearon",
-].join("\n")
 
 export function TournamentMode({
   getAvatarSrc,
@@ -47,11 +41,17 @@ export function TournamentMode({
     currentMatch,
     lastResult,
     loading,
+    simulating,
     error,
+    selectedMatchId,
+    selectedDetail,
     startTournament,
     playCurrentMatch,
+    autoSimulateAll,
     continueAfterResult,
     retryMatch,
+    selectMatch,
+    clearMatchSelection,
     resetToSetup,
   } = tournament
 
@@ -62,19 +62,28 @@ export function TournamentMode({
     [startTournament],
   )
 
+  const handleDemoSelect = useCallback(
+    (lineup: DemoLineup) => {
+      setLoginsText(lineup.logins.join("\n"))
+      setBracketSize(BRACKET_SIZE_AUTO)
+    },
+    [setLoginsText, setBracketSize],
+  )
+
   if (phase === "setup" || !state) {
     return (
       <PlayerSetupForm
         heading="Tournament"
-        description="Enter fighters, draw a random knockout bracket, then play match by match until one champion remains."
+        description="Enter fighters or pick a demo (4 / 6 / 16), draw a random knockout bracket, then play match by match — or auto-simulate to the champion."
         ctaLabel="Draw bracket"
         loginsText={loginsText}
         onLoginsChange={setLoginsText}
         bracketSize={bracketSize}
         onBracketSizeChange={setBracketSize}
+        demoLineups={DEMO_LINEUPS}
+        onDemoSelect={handleDemoSelect}
         error={setupError}
         onSubmit={handleSubmit}
-        onDemoFill={() => setLoginsText(DEMO_ROSTER)}
       />
     )
   }
@@ -89,12 +98,23 @@ export function TournamentMode({
     )
   }
 
+  const busy = loading || simulating
+
   return (
     <>
       <BracketView
         tournament={state}
         activeMatchId={phase === "preview" ? currentMatch?.id : null}
+        selectedMatchId={selectedMatchId}
+        onSelectMatch={selectMatch}
       />
+
+      {selectedDetail && (
+        <MatchDetailPanel
+          detail={selectedDetail}
+          onClose={clearMatchSelection}
+        />
+      )}
 
       {error && (
         <ErrorBanner
@@ -105,7 +125,16 @@ export function TournamentMode({
         />
       )}
 
-      {phase === "preview" && currentMatch && (
+      {simulating && (
+        <p
+          role="status"
+          className="mb-4 font-display text-[0.88rem] font-semibold tracking-[0.12em] text-amber uppercase"
+        >
+          Auto-simulating remaining matches…
+        </p>
+      )}
+
+      {phase === "preview" && currentMatch && !simulating && (
         <section className="mb-5 border border-line bg-panel p-3.5 sm:p-4.5">
           <p className="mb-1 font-display text-[0.72rem] font-bold tracking-[0.16em] text-dim uppercase">
             Up next
@@ -121,14 +150,24 @@ export function TournamentMode({
               {currentMatch.right}
             </strong>
           </div>
-          <button
-            type="button"
-            onClick={() => void playCurrentMatch()}
-            disabled={loading}
-            className="min-h-11 cursor-pointer rounded-[2px] bg-amber-fill px-6 font-display text-[0.95rem] font-extrabold tracking-[0.16em] text-on-amber uppercase transition-colors hover:bg-amber-fill-hover active:bg-amber-fill-active disabled:cursor-wait disabled:bg-line-strong disabled:text-dim"
-          >
-            {loading ? "Battle…" : "Play match"}
-          </button>
+          <div className="flex flex-wrap gap-2">
+            <button
+              type="button"
+              onClick={() => void playCurrentMatch()}
+              disabled={busy}
+              className="min-h-11 cursor-pointer rounded-[2px] bg-amber-fill px-6 font-display text-[0.95rem] font-extrabold tracking-[0.16em] text-on-amber uppercase transition-colors hover:bg-amber-fill-hover active:bg-amber-fill-active disabled:cursor-wait disabled:bg-line-strong disabled:text-dim"
+            >
+              {loading ? "Battle…" : "Play match"}
+            </button>
+            <button
+              type="button"
+              onClick={() => void autoSimulateAll()}
+              disabled={busy}
+              className="min-h-11 cursor-pointer rounded-[2px] border border-line-strong bg-deep px-5 font-display text-[0.9rem] font-bold tracking-[0.14em] text-ink-dim uppercase transition-colors hover:border-amber hover:text-amber disabled:cursor-wait disabled:opacity-60"
+            >
+              Auto-simulate all
+            </button>
+          </div>
         </section>
       )}
 
@@ -144,7 +183,7 @@ export function TournamentMode({
             onSelectAvatar={onSelectAvatar}
             onResetAvatar={onResetAvatar}
           />
-          <div className="mt-4 mb-2">
+          <div className="mt-4 mb-2 flex flex-wrap gap-2">
             <button
               type="button"
               onClick={continueAfterResult}
@@ -152,6 +191,16 @@ export function TournamentMode({
             >
               {state.championLogin ? "See champion" : "Next match"}
             </button>
+            {!state.championLogin && (
+              <button
+                type="button"
+                onClick={() => void autoSimulateAll()}
+                disabled={busy}
+                className="min-h-11 w-full cursor-pointer rounded-[2px] border border-line-strong bg-deep px-5 font-display text-[0.9rem] font-bold tracking-[0.14em] text-ink-dim uppercase transition-colors hover:border-amber hover:text-amber disabled:cursor-wait disabled:opacity-60 sm:w-auto"
+              >
+                Auto-simulate rest
+              </button>
+            )}
           </div>
         </>
       )}

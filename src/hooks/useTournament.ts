@@ -1,19 +1,23 @@
 import { useCallback, useMemo, useState } from "react"
-import { runBattle } from "../lib/battle"
-import { toBattleError, type BattleErrorState } from "../lib/errors"
+import { runBattle } from "@/lib/battle"
+import { toBattleError, type BattleErrorState } from "@/lib/errors"
 import {
   applyMatchResult,
+  BRACKET_SIZE_AUTO,
   buildTournament,
   findPlayableMatch,
+  getMatchDetail,
   isTournamentComplete,
   MAX_TOURNAMENT_PLAYERS,
   MIN_TOURNAMENT_PLAYERS,
   parsePlayerLogins,
+  resolveBracketSize,
   resolveTournamentWinner,
+  type MatchDetail,
   type PlayableMatch,
   type TournamentState,
-} from "../lib/tournament"
-import type { BattleResult } from "../lib/types"
+} from "@/lib/tournament"
+import type { BattleResult } from "@/lib/types"
 
 export type TournamentPhase = "setup" | "preview" | "result" | "champion"
 
@@ -22,21 +26,31 @@ type TournamentOptions = {
   initialLogins?: string
 }
 
+/** Safety cap so auto-simulate cannot loop forever on bad state. */
+const AUTO_SIMULATE_MAX_MATCHES = 64
+
 export function useTournament(options?: TournamentOptions) {
   const [phase, setPhase] = useState<TournamentPhase>("setup")
   const [loginsText, setLoginsText] = useState(options?.initialLogins ?? "")
-  const [bracketSize, setBracketSize] = useState(8)
+  const [bracketSize, setBracketSize] = useState(BRACKET_SIZE_AUTO)
   const [setupError, setSetupError] = useState<string | null>(null)
   const [tournament, setTournament] = useState<TournamentState | null>(null)
   const [currentMatch, setCurrentMatch] = useState<PlayableMatch | null>(null)
   const [lastResult, setLastResult] = useState<BattleResult | null>(null)
   const [loading, setLoading] = useState(false)
+  const [simulating, setSimulating] = useState(false)
   const [error, setError] = useState<BattleErrorState | null>(null)
+  const [selectedMatchId, setSelectedMatchId] = useState<string | null>(null)
 
   const playable = useMemo(
     () => (tournament ? findPlayableMatch(tournament) : null),
     [tournament],
   )
+
+  const selectedDetail: MatchDetail | null = useMemo(() => {
+    if (!tournament || !selectedMatchId) return null
+    return getMatchDetail(tournament, selectedMatchId)
+  }, [tournament, selectedMatchId])
 
   const startTournament = useCallback((rawLogins: string, size: number) => {
     const logins = parsePlayerLogins(rawLogins)
@@ -49,28 +63,20 @@ export function useTournament(options?: TournamentOptions) {
       return
     }
 
-    const nextSize = Math.min(
-      MAX_TOURNAMENT_PLAYERS,
-      Math.max(MIN_TOURNAMENT_PLAYERS, size),
-    )
-    if (logins.length > nextSize) {
-      setSetupError(
-        `You entered ${logins.length} players — pick a larger bracket or remove some.`,
-      )
-      return
-    }
-
+    // Auto (or undersized explicit) expands to the next power of two.
+    const nextSize = resolveBracketSize(logins.length, size)
     const state = buildTournament(logins, nextSize)
     setSetupError(null)
     setTournament(state)
     setLastResult(null)
     setError(null)
+    setSelectedMatchId(null)
     setPhase("preview")
     setCurrentMatch(findPlayableMatch(state))
   }, [])
 
   const playCurrentMatch = useCallback(async () => {
-    if (!tournament || !currentMatch || loading) return
+    if (!tournament || !currentMatch || loading || simulating) return
 
     setLoading(true)
     setError(null)
@@ -88,6 +94,7 @@ export function useTournament(options?: TournamentOptions) {
 
       setTournament(next)
       setLastResult(result)
+      setSelectedMatchId(currentMatch.id)
       setCurrentMatch(findPlayableMatch(next))
       setPhase("result")
     } catch (battleError) {
@@ -95,7 +102,55 @@ export function useTournament(options?: TournamentOptions) {
     } finally {
       setLoading(false)
     }
-  }, [tournament, currentMatch, loading])
+  }, [tournament, currentMatch, loading, simulating])
+
+  /** Run every remaining match without pausing, then show the champion. */
+  const autoSimulateAll = useCallback(async () => {
+    if (!tournament || loading || simulating) return
+
+    setSimulating(true)
+    setError(null)
+    setLastResult(null)
+
+    let state = tournament
+    try {
+      let guard = 0
+      while (!isTournamentComplete(state) && guard < AUTO_SIMULATE_MAX_MATCHES) {
+        guard += 1
+        const match = findPlayableMatch(state)
+        if (!match) break
+
+        const result = await runBattle(match.left, match.right)
+        const winnerLogin = resolveTournamentWinner(result.left, result.right)
+        state = applyMatchResult(
+          state,
+          match.id,
+          winnerLogin,
+          result.left,
+          result.right,
+        )
+        // Refresh bracket while simulating so progress is visible
+        setTournament(state)
+        setCurrentMatch(findPlayableMatch(state))
+      }
+
+      setTournament(state)
+      setCurrentMatch(null)
+
+      if (isTournamentComplete(state)) {
+        setPhase("champion")
+      } else {
+        setPhase("preview")
+        setCurrentMatch(findPlayableMatch(state))
+      }
+    } catch (battleError) {
+      setError(toBattleError(battleError))
+      setPhase("preview")
+      setCurrentMatch(findPlayableMatch(state))
+    } finally {
+      setSimulating(false)
+    }
+  }, [tournament, loading, simulating])
 
   const continueAfterResult = useCallback(() => {
     if (!tournament) return
@@ -124,6 +179,14 @@ export function useTournament(options?: TournamentOptions) {
     void playCurrentMatch()
   }, [playCurrentMatch])
 
+  const selectMatch = useCallback((matchId: string) => {
+    setSelectedMatchId((current) => (current === matchId ? null : matchId))
+  }, [])
+
+  const clearMatchSelection = useCallback(() => {
+    setSelectedMatchId(null)
+  }, [])
+
   const resetToSetup = useCallback(() => {
     setPhase("setup")
     setTournament(null)
@@ -132,6 +195,8 @@ export function useTournament(options?: TournamentOptions) {
     setError(null)
     setSetupError(null)
     setLoading(false)
+    setSimulating(false)
+    setSelectedMatchId(null)
   }, [])
 
   return {
@@ -145,12 +210,18 @@ export function useTournament(options?: TournamentOptions) {
     currentMatch,
     lastResult,
     loading,
+    simulating,
     error,
     playable,
+    selectedMatchId,
+    selectedDetail,
     startTournament,
     playCurrentMatch,
+    autoSimulateAll,
     continueAfterResult,
     retryMatch,
+    selectMatch,
+    clearMatchSelection,
     resetToSetup,
   }
 }

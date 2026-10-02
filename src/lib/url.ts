@@ -2,7 +2,7 @@ import {
   getCurrentWeeklyMatchup,
   getWeeklyMatchupForWeekId,
   parseWeekId,
-} from "./weekly"
+} from "@/lib/weekly"
 
 export type BattleUrlPair = {
   left: string

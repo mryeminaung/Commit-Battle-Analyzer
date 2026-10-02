@@ -1,5 +1,5 @@
-import { fetchBattleProfile } from "./github"
-import type { BattleProfile, BattleResult, BattleSide } from "./types"
+import { fetchBattleProfile } from "@/lib/github"
+import type { BattleProfile, BattleResult, BattleSide } from "@/lib/types"
 
 const pickWinner = (
   left: BattleProfile,

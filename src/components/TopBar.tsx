@@ -1,5 +1,5 @@
-import type { Theme } from "../hooks/useTheme"
-import { ThemeToggle } from "./ThemeToggle"
+import type { Theme } from "@/hooks/useTheme"
+import { ThemeToggle } from "@/components/ThemeToggle"
 
 type TopBarProps = {
   theme: Theme

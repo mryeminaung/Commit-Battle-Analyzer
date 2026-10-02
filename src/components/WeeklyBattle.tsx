@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react"
-import { getCurrentWeeklyMatchup, type WeeklyMatchup } from "../lib/weekly"
-import { ShareBattleButton } from "./ShareBattleButton"
+import { getCurrentWeeklyMatchup, type WeeklyMatchup } from "@/lib/weekly"
+import { ShareBattleButton } from "@/components/ShareBattleButton"
 
 type WeeklyBattleProps = {
   activeWeekId: string | null

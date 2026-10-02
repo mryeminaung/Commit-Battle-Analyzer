@@ -1,13 +1,13 @@
-import { readCachedProfile, writeCachedProfile } from "./cache"
-import { githubToken } from "./env"
-import { RateLimitError } from "./errors"
-import { MOCK_PROFILES } from "./mocks"
-import { buildScoreBreakdown, computePowerScore } from "./scores"
+import { readCachedProfile, writeCachedProfile } from "@/lib/cache"
+import { githubToken } from "@/lib/env"
+import { RateLimitError } from "@/lib/errors"
+import { MOCK_PROFILES } from "@/lib/mocks"
+import { buildScoreBreakdown, computePowerScore } from "@/lib/scores"
 import type {
   BattleProfile,
   GitHubUserResponse,
   RepoResponse,
-} from "./types"
+} from "@/lib/types"
 
 const githubHeaders: Record<string, string> = {
   Accept: "application/vnd.github+json",

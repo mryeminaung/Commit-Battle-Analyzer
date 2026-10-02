@@ -1,7 +1,7 @@
 import { useState } from "react"
-import { DEFAULT_FALLBACK_AVATAR } from "../lib/avatars"
-import type { BattleProfile, BattleSide, ScoreBreakdown } from "../lib/types"
-import { AvatarPicker } from "./AvatarPicker"
+import { DEFAULT_FALLBACK_AVATAR } from "@/lib/avatars"
+import type { BattleProfile, BattleSide, ScoreBreakdown } from "@/lib/types"
+import { AvatarPicker } from "@/components/AvatarPicker"
 
 type ProfileCardProps = {
   profile: BattleProfile

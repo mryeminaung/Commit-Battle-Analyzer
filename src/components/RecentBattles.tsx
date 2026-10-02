@@ -1,4 +1,4 @@
-import type { BoutRecord } from "../lib/types"
+import type { BoutRecord } from "@/lib/types"
 
 type RecentBattlesProps = {
   bouts: BoutRecord[]

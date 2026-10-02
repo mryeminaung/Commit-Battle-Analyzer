@@ -1,4 +1,4 @@
-import type { BattleProfile } from "./types"
+import type { BattleProfile } from "@/lib/types"
 
 /**
  * In-memory profile cache for the session.

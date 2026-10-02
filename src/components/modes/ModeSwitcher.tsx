@@ -1,4 +1,4 @@
-import { APP_MODES, MODE_LABELS, type AppMode } from "../../lib/modes"
+import { APP_MODES, MODE_LABELS, type AppMode } from "@/lib/modes"
 
 type ModeSwitcherProps = {
   mode: AppMode

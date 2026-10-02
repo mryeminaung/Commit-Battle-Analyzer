@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from "react"
 import {
   AVATAR_OPTIONS,
   DEFAULT_FALLBACK_AVATAR,
-} from "../lib/avatars"
+} from "@/lib/avatars"
 
 type AvatarPickerProps = {
   login: string

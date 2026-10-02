@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from "react"
-import { buildBattleUrl } from "../lib/url"
+import { buildBattleUrl } from "@/lib/url"
 
 type ShareBattleButtonProps = {
   leftLogin: string

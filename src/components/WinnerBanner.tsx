@@ -1,5 +1,5 @@
-import type { BattleResult } from "../lib/types"
-import { ShareBattleButton } from "./ShareBattleButton"
+import type { BattleResult } from "@/lib/types"
+import { ShareBattleButton } from "@/components/ShareBattleButton"
 
 type WinnerBannerProps = {
   result: BattleResult

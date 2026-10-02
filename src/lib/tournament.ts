@@ -1,5 +1,5 @@
-import { normalizeLogin } from "./github"
-import type { BattleProfile } from "./types"
+import { normalizeLogin } from "@/lib/github"
+import type { BattleProfile } from "@/lib/types"
 
 /**
  * Pure tournament bracket logic.
@@ -53,6 +53,41 @@ export type PlayableMatch = {
 
 export const MIN_TOURNAMENT_PLAYERS = 2
 export const MAX_TOURNAMENT_PLAYERS = 16
+
+/** Bracket size sentinel — pick the next power of two from the lineup. */
+export const BRACKET_SIZE_AUTO = 0
+
+/** Supported explicit bracket sizes (BYEs pad smaller lineups). */
+export const BRACKET_SIZE_OPTIONS = [4, 8, 16] as const
+
+/**
+ * Resolve the knockout size for a lineup.
+ * - AUTO → next power of two (6 players → 8, with BYEs)
+ * - Explicit smaller than the lineup → expand so the field always fits
+ */
+export const resolveBracketSize = (
+  playerCount: number,
+  requested: number,
+): number => {
+  const count = Math.max(MIN_TOURNAMENT_PLAYERS, playerCount)
+  const cappedCount = Math.min(MAX_TOURNAMENT_PLAYERS, count)
+  const autoSize = nextPowerOfTwo(cappedCount)
+
+  if (!requested || requested === BRACKET_SIZE_AUTO) {
+    return autoSize
+  }
+
+  const explicit = Math.min(
+    MAX_TOURNAMENT_PLAYERS,
+    Math.max(MIN_TOURNAMENT_PLAYERS, requested),
+  )
+
+  if (explicit < cappedCount) {
+    return autoSize
+  }
+
+  return explicit
+}
 
 /** Split free text into unique normalized GitHub logins. */
 export const parsePlayerLogins = (raw: string): string[] => {
@@ -370,4 +405,55 @@ export const getRoundLabel = (round: number, totalRounds: number): string => {
   if (remaining === 2) return "Semifinals"
   if (remaining === 3) return "Quarterfinals"
   return `Round ${round + 1}`
+}
+
+/** Snapshot of one bracket node for the details panel. */
+export type MatchDetail = {
+  matchId: string
+  round: number
+  roundLabel: string
+  left: string | null
+  right: string | null
+  winnerLogin: string | null
+  leftScore: number | null
+  rightScore: number | null
+  played: boolean
+  isBye: boolean
+  leftStats: TournamentPlayerStat | null
+  rightStats: TournamentPlayerStat | null
+}
+
+export const findMatchById = (
+  state: TournamentState,
+  matchId: string,
+): TournamentMatch | null => {
+  for (const round of state.rounds) {
+    for (const match of round) {
+      if (match.id === matchId) return match
+    }
+  }
+  return null
+}
+
+export const getMatchDetail = (
+  state: TournamentState,
+  matchId: string,
+): MatchDetail | null => {
+  const match = findMatchById(state, matchId)
+  if (!match) return null
+
+  return {
+    matchId: match.id,
+    round: match.round,
+    roundLabel: getRoundLabel(match.round, state.rounds.length),
+    left: match.left,
+    right: match.right,
+    winnerLogin: match.winnerLogin,
+    leftScore: match.leftScore,
+    rightScore: match.rightScore,
+    played: match.played,
+    isBye: match.isBye,
+    leftStats: match.left ? state.stats[match.left] ?? null : null,
+    rightStats: match.right ? state.stats[match.right] ?? null : null,
+  }
 }

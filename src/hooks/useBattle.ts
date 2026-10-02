@@ -1,9 +1,9 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react"
-import { runBattle } from "../lib/battle"
-import { toBattleError, type BattleErrorState } from "../lib/errors"
-import { clearBouts, loadBouts, pushBout } from "../lib/history"
-import { readBattleFromUrl, writeBattleToUrl } from "../lib/url"
-import type { BattleResult, BoutRecord } from "../lib/types"
+import { runBattle } from "@/lib/battle"
+import { toBattleError, type BattleErrorState } from "@/lib/errors"
+import { clearBouts, loadBouts, pushBout } from "@/lib/history"
+import { readBattleFromUrl, writeBattleToUrl } from "@/lib/url"
+import type { BattleResult, BoutRecord } from "@/lib/types"
 
 type UseBattleOptions = {
   /** When false, skip the auto-start effect (mode switchers / lazy duel). */

@@ -1,5 +1,5 @@
-import { useCountUp } from "../hooks/useCountUp"
-import type { BattleProfile, BattleResult } from "../lib/types"
+import { useCountUp } from "@/hooks/useCountUp"
+import type { BattleProfile, BattleResult } from "@/lib/types"
 
 type ScoreStripProps = {
   result: BattleResult

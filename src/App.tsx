@@ -1,24 +1,24 @@
 import { useCallback, useEffect, useState, type FormEvent } from "react"
-import { BattleForm } from "./components/BattleForm"
-import { BattleSkeleton } from "./components/BattleSkeleton"
-import { ErrorBanner } from "./components/ErrorBanner"
-import { BossMode } from "./components/modes/BossMode"
-import { ModeSwitcher } from "./components/modes/ModeSwitcher"
-import { StandingsMode } from "./components/modes/StandingsMode"
-import { TournamentMode } from "./components/modes/TournamentMode"
-import { PresetRow } from "./components/PresetRow"
-import { RecentBattles } from "./components/RecentBattles"
-import { Scoreboard } from "./components/Scoreboard"
-import { TopBar } from "./components/TopBar"
-import { WeeklyBattle } from "./components/WeeklyBattle"
-import { useAvatars } from "./hooks/useAvatars"
-import { useBattle } from "./hooks/useBattle"
-import { useTheme } from "./hooks/useTheme"
+import { BattleForm } from "@/components/BattleForm"
+import { BattleSkeleton } from "@/components/BattleSkeleton"
+import { ErrorBanner } from "@/components/ErrorBanner"
+import { BossMode } from "@/components/modes/BossMode"
+import { ModeSwitcher } from "@/components/modes/ModeSwitcher"
+import { StandingsMode } from "@/components/modes/StandingsMode"
+import { TournamentMode } from "@/components/modes/TournamentMode"
+import { PresetRow } from "@/components/PresetRow"
+import { RecentBattles } from "@/components/RecentBattles"
+import { Scoreboard } from "@/components/Scoreboard"
+import { TopBar } from "@/components/TopBar"
+import { WeeklyBattle } from "@/components/WeeklyBattle"
+import { useAvatars } from "@/hooks/useAvatars"
+import { useBattle } from "@/hooks/useBattle"
+import { useTheme } from "@/hooks/useTheme"
 import {
   readModeFromUrl,
   writeModeToUrl,
   type AppMode,
-} from "./lib/modes"
+} from "@/lib/modes"
 
 const isTypingTarget = (target: EventTarget | null): boolean => {
   if (!(target instanceof HTMLElement)) return false

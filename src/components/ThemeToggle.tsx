@@ -1,4 +1,4 @@
-import type { Theme } from "../hooks/useTheme"
+import type { Theme } from "@/hooks/useTheme"
 
 type ThemeToggleProps = {
   theme: Theme

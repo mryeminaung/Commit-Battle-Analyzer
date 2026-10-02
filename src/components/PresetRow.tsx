@@ -1,4 +1,4 @@
-import { presetBattles } from "../data/presets"
+import { presetBattles } from "@/data/presets"
 
 type PresetRowProps = {
   onSelect: (left: string, right: string) => void

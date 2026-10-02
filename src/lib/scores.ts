@@ -1,4 +1,4 @@
-import type { ScoreBreakdown } from "./types"
+import type { ScoreBreakdown } from "@/lib/types"
 
 export const POWER_WEIGHTS = {
   repos: 0.4,

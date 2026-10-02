@@ -1,4 +1,4 @@
-import type { BoutRecord } from "./types"
+import type { BoutRecord } from "@/lib/types"
 
 const STORAGE_KEY = "cba:bouts"
 const MAX_BOUTS = 6

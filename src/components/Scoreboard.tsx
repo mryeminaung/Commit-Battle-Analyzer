@@ -1,7 +1,7 @@
-import type { BattleResult } from "../lib/types"
-import { ProfileCard } from "./ProfileCard"
-import { ScoreStrip } from "./ScoreStrip"
-import { WinnerBanner } from "./WinnerBanner"
+import type { BattleResult } from "@/lib/types"
+import { ProfileCard } from "@/components/ProfileCard"
+import { ScoreStrip } from "@/components/ScoreStrip"
+import { WinnerBanner } from "@/components/WinnerBanner"
 
 type ScoreboardProps = {
   result: BattleResult
