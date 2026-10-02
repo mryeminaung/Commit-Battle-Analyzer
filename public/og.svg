@@ -1,0 +1,42 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630">
+  <rect width="1200" height="630" fill="#14161A"/>
+
+  <!-- grain-ish bars -->
+  <g fill="#1B1E24">
+    <rect x="0" y="0" width="1200" height="8"/>
+    <rect x="0" y="622" width="1200" height="8"/>
+  </g>
+
+  <!-- top strip -->
+  <rect x="64" y="48" width="1072" height="48" fill="#1B1E24" stroke="#3A404A" stroke-width="2"/>
+  <rect x="84" y="66" width="12" height="12" fill="#D64545"/>
+  <text x="112" y="78" font-family="Arial Narrow, Helvetica, sans-serif" font-size="20" font-weight="700" letter-spacing="4" fill="#8A919E">GITHUB PUBLIC PROFILE BATTLE</text>
+  <text x="1116" y="78" text-anchor="end" font-family="Arial Narrow, Helvetica, sans-serif" font-size="20" font-weight="700" letter-spacing="4" fill="#8A919E">SCOREBOARD</text>
+
+  <!-- title -->
+  <text x="64" y="170" font-family="Arial Narrow, Helvetica, sans-serif" font-size="72" font-weight="800" letter-spacing="2" fill="#F2EFE6">COMMIT BATTLE</text>
+  <text x="64" y="240" font-family="Arial Narrow, Helvetica, sans-serif" font-size="72" font-weight="800" letter-spacing="2" fill="#F5A623">ANALYZER</text>
+
+  <!-- scoreboard panel -->
+  <rect x="64" y="290" width="1072" height="220" fill="#1B1E24" stroke="#3A404A" stroke-width="2"/>
+  <rect x="64" y="290" width="1072" height="70" fill="#0F1114"/>
+  <line x1="64" y1="360" x2="1136" y2="360" stroke="#3A404A" stroke-width="2"/>
+
+  <!-- left score -->
+  <text x="104" y="330" font-family="Arial Narrow, Helvetica, sans-serif" font-size="22" font-weight="700" letter-spacing="6" fill="#8A919E">TORVALDS</text>
+  <text x="104" y="430" font-family="Arial Narrow, Helvetica, sans-serif" font-size="96" font-weight="800" fill="#F5A623">98</text>
+  <text x="104" y="480" font-family="Arial Narrow, Helvetica, sans-serif" font-size="24" font-weight="700" letter-spacing="4" fill="#C5C9D1">POWER</text>
+
+  <!-- colon -->
+  <text x="600" y="420" text-anchor="middle" font-family="Arial Narrow, Helvetica, sans-serif" font-size="72" font-weight="800" fill="#D64545">:</text>
+
+  <!-- right score -->
+  <text x="1096" y="330" text-anchor="end" font-family="Arial Narrow, Helvetica, sans-serif" font-size="22" font-weight="700" letter-spacing="6" fill="#8A919E">DAN-ABRAMOV</text>
+  <text x="1096" y="430" text-anchor="end" font-family="Arial Narrow, Helvetica, sans-serif" font-size="96" font-weight="800" fill="#F2EFE6">94</text>
+  <text x="1096" y="480" text-anchor="end" font-family="Arial Narrow, Helvetica, sans-serif" font-size="24" font-weight="700" letter-spacing="4" fill="#C5C9D1">POWER</text>
+
+  <!-- footer -->
+  <text x="64" y="570" font-family="Arial Narrow, Helvetica, sans-serif" font-size="28" font-weight="700" letter-spacing="3" fill="#8A919E">WHO WINS ON PUBLIC SIGNALS?</text>
+  <rect x="920" y="530" width="216" height="48" fill="#F5A623"/>
+  <text x="1028" y="562" text-anchor="middle" font-family="Arial Narrow, Helvetica, sans-serif" font-size="22" font-weight="800" letter-spacing="3" fill="#14161A">BATTLE</text>
+</svg>

@@ -4,6 +4,8 @@ import { buildBattleUrl } from "../lib/url"
 type ShareBattleButtonProps = {
   leftLogin: string
   rightLogin: string
+  /** When set, share URL uses `?week=` instead of `?a=&b=`. */
+  weekId?: string
 }
 
 type CopyState = "idle" | "copied" | "failed"
@@ -11,6 +13,7 @@ type CopyState = "idle" | "copied" | "failed"
 export function ShareBattleButton({
   leftLogin,
   rightLogin,
+  weekId,
 }: ShareBattleButtonProps) {
   const [copyState, setCopyState] = useState<CopyState>("idle")
   const resetTimer = useRef<number | null>(null)
@@ -32,7 +35,11 @@ export function ShareBattleButton({
   }, [])
 
   const handleShare = useCallback(async () => {
-    const url = buildBattleUrl(leftLogin, rightLogin)
+    const url = buildBattleUrl({
+      left: leftLogin,
+      right: rightLogin,
+      weekId: weekId ?? null,
+    })
     if (!url) {
       flash("failed")
       return
@@ -40,7 +47,9 @@ export function ShareBattleButton({
 
     const shareData = {
       title: "Commit Battle Analyzer",
-      text: `${leftLogin} vs ${rightLogin}`,
+      text: weekId
+        ? `Battle of the week (${weekId}): ${leftLogin} vs ${rightLogin}`
+        : `${leftLogin} vs ${rightLogin}`,
       url,
     }
 
@@ -53,7 +62,6 @@ export function ShareBattleButton({
         if (error instanceof DOMException && error.name === "AbortError") {
           return
         }
-        // fall through to clipboard
       }
     }
 
@@ -75,7 +83,7 @@ export function ShareBattleButton({
     } catch {
       flash("failed")
     }
-  }, [leftLogin, rightLogin, flash])
+  }, [leftLogin, rightLogin, weekId, flash])
 
   const label =
     copyState === "copied"
@@ -91,7 +99,7 @@ export function ShareBattleButton({
         void handleShare()
       }}
       title={`Share ${leftLogin} vs ${rightLogin}`}
-      className={`inline-flex h-8 shrink-0 cursor-pointer items-center gap-2 rounded-[2px] border px-2.5 font-display text-[0.72rem] font-bold tracking-[0.14em] uppercase transition-colors ${
+      className={`inline-flex min-h-9 shrink-0 cursor-pointer items-center gap-2 rounded-[2px] border px-2.5 font-display text-[0.72rem] font-bold tracking-[0.14em] uppercase transition-colors ${
         copyState === "copied"
           ? "border-amber bg-amber-fill/15 text-amber"
           : copyState === "failed"

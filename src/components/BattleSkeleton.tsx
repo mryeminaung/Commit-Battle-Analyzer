@@ -7,20 +7,21 @@ export function BattleSkeleton() {
       aria-label="Loading battle"
     >
       <div className="border border-line bg-panel">
-        <div className="grid grid-cols-[1fr_auto_1fr] items-center gap-3 border-b border-line bg-deep px-4.5 py-3.5">
-          <div className="space-y-2">
+        {/* Mirrors ScoreStrip: stacks on small screens, 3-col on sm+ */}
+        <div className="grid grid-cols-1 items-center gap-1.5 border-b border-line bg-deep px-3.5 py-3.5 max-sm:text-center sm:grid-cols-[1fr_auto_1fr] sm:gap-3 sm:px-4.5">
+          <div className="flex flex-col gap-0.5 max-sm:items-center">
             <div className="h-3 w-24 bg-line" />
             <div className="h-9 w-16 bg-line-strong" />
           </div>
-          <div className="h-6 w-3 bg-line" />
-          <div className="flex flex-col items-end gap-2">
+          <div className="h-6 w-3 bg-line mx-auto" />
+          <div className="flex flex-col items-end gap-2 max-sm:items-center">
             <div className="h-3 w-24 bg-line" />
             <div className="h-9 w-16 bg-line-strong" />
           </div>
         </div>
 
         <div className="space-y-3 px-4.5 pt-3.5 pb-4">
-          <div className="flex items-center gap-3">
+          <div className="flex flex-wrap items-center gap-2 sm:gap-3">
             <div className="h-8 w-28 bg-amber-fill/70" />
             <div className="h-6 w-40 bg-line-strong" />
           </div>
@@ -32,14 +33,14 @@ export function BattleSkeleton() {
         {[0, 1].map((side) => (
           <div
             key={side}
-            className="flex-1 border border-line bg-panel p-4.5"
+            className="flex-1 border border-line bg-panel p-3.5 sm:p-4.5"
             aria-hidden="true"
           >
-            <div className="mb-3.5 flex items-start gap-3.5 border-b border-line pb-3.5">
-              <div className="size-[72px] shrink-0 bg-line" />
+            <div className="mb-3.5 flex items-start gap-3 border-b border-line pb-3.5 sm:gap-3.5">
+              <div className="size-14 shrink-0 bg-line sm:size-[72px]" />
               <div className="min-w-0 flex-1 space-y-2">
                 <div className="h-3 w-20 bg-line" />
-                <div className="h-6 w-40 bg-line-strong" />
+                <div className="h-6 w-full max-w-40 bg-line-strong" />
                 <div className="h-3 w-24 bg-line" />
               </div>
               <div className="h-9 w-12 bg-line-strong" />
@@ -51,7 +52,7 @@ export function BattleSkeleton() {
               {[0, 1, 2, 3].map((cell) => (
                 <div
                   key={cell}
-                  className="space-y-2 border-r border-b border-line p-3"
+                  className="space-y-2 border-r border-b border-line p-2.5 sm:p-3"
                 >
                   <div className="h-3 w-16 bg-line" />
                   <div className="h-5 w-20 bg-line-strong" />

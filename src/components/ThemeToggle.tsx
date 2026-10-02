@@ -15,7 +15,7 @@ export function ThemeToggle({ theme, onToggle }: ThemeToggleProps) {
       onClick={onToggle}
       aria-label={label}
       title={label}
-      className="inline-flex h-8 shrink-0 cursor-pointer items-center gap-2 rounded-[2px] border border-line-strong bg-deep px-2.5 font-display text-[0.72rem] font-bold tracking-[0.14em] text-ink-dim uppercase transition-colors hover:border-amber hover:text-amber"
+      className="inline-flex min-h-9 shrink-0 cursor-pointer items-center gap-2 rounded-[2px] border border-line-strong bg-deep px-2.5 font-display text-[0.72rem] font-bold tracking-[0.14em] text-ink-dim uppercase transition-colors hover:border-amber hover:text-amber"
     >
       {isDark ? (
         <svg

@@ -1,10 +1,22 @@
-import { useCallback, useEffect, useMemo, useState } from "react"
+import { useCallback, useEffect, useMemo, useRef, useState } from "react"
 import { runBattle } from "../lib/battle"
+import { toBattleError, type BattleErrorState } from "../lib/errors"
 import { clearBouts, loadBouts, pushBout } from "../lib/history"
 import { readBattleFromUrl, writeBattleToUrl } from "../lib/url"
 import type { BattleResult, BoutRecord } from "../lib/types"
 
-export function useBattle(defaultLeft: string, defaultRight: string) {
+type UseBattleOptions = {
+  /** When false, skip the auto-start effect (mode switchers / lazy duel). */
+  autoStart?: boolean
+}
+
+export function useBattle(
+  defaultLeft: string,
+  defaultRight: string,
+  options?: UseBattleOptions,
+) {
+  const autoStart = options?.autoStart ?? true
+
   const initialPair = useMemo(
     () => readBattleFromUrl() ?? { left: defaultLeft, right: defaultRight },
     [defaultLeft, defaultRight],
@@ -12,20 +24,42 @@ export function useBattle(defaultLeft: string, defaultRight: string) {
 
   const [leftUser, setLeftUser] = useState(initialPair.left)
   const [rightUser, setRightUser] = useState(initialPair.right)
+  const [weekId, setWeekId] = useState<string | null>(
+    () => initialPair.weekId ?? null,
+  )
   const [result, setResult] = useState<BattleResult | null>(null)
-  const [error, setError] = useState<string | null>(null)
+  const [error, setError] = useState<BattleErrorState | null>(null)
   const [loading, setLoading] = useState(false)
   const [bouts, setBouts] = useState<BoutRecord[]>(() => loadBouts())
+  const lastPairRef = useRef<{
+    left: string
+    right: string
+    weekId: string | null
+  } | null>(null)
 
   const startBattle = useCallback(
-    async (firstUser: string, secondUser: string) => {
+    async (
+      firstUser: string,
+      secondUser: string,
+      battleWeekId: string | null = null,
+    ) => {
+      lastPairRef.current = {
+        left: firstUser,
+        right: secondUser,
+        weekId: battleWeekId,
+      }
+      setWeekId(battleWeekId)
       setLoading(true)
       setError(null)
 
       try {
         const battleResult = await runBattle(firstUser, secondUser)
         setResult(battleResult)
-        writeBattleToUrl(battleResult.left.login, battleResult.right.login)
+        writeBattleToUrl({
+          left: battleResult.left.login,
+          right: battleResult.right.login,
+          weekId: battleWeekId,
+        })
         setBouts(
           pushBout({
             leftLogin: battleResult.left.login,
@@ -39,11 +73,7 @@ export function useBattle(defaultLeft: string, defaultRight: string) {
         )
       } catch (battleError) {
         setResult(null)
-        setError(
-          battleError instanceof Error
-            ? battleError.message
-            : "Something went wrong while loading the battle data.",
-        )
+        setError(toBattleError(battleError))
       } finally {
         setLoading(false)
       }
@@ -51,12 +81,18 @@ export function useBattle(defaultLeft: string, defaultRight: string) {
     [],
   )
 
+  const retryLastBattle = useCallback(() => {
+    const pair = lastPairRef.current
+    if (!pair) return
+    void startBattle(pair.left, pair.right, pair.weekId)
+  }, [startBattle])
+
   const swapPlayers = useCallback(() => {
     const nextLeft = rightUser
     const nextRight = leftUser
     setLeftUser(nextLeft)
     setRightUser(nextRight)
-    void startBattle(nextLeft, nextRight)
+    void startBattle(nextLeft, nextRight, null)
   }, [leftUser, rightUser, startBattle])
 
   const resetHistory = useCallback(() => {
@@ -64,19 +100,32 @@ export function useBattle(defaultLeft: string, defaultRight: string) {
   }, [])
 
   useEffect(() => {
-    void startBattle(initialPair.left, initialPair.right)
-  }, [initialPair.left, initialPair.right, startBattle])
+    if (!autoStart) return
+    void startBattle(
+      initialPair.left,
+      initialPair.right,
+      initialPair.weekId ?? null,
+    )
+  }, [
+    autoStart,
+    initialPair.left,
+    initialPair.right,
+    initialPair.weekId,
+    startBattle,
+  ])
 
   return {
     leftUser,
     rightUser,
     setLeftUser,
     setRightUser,
+    weekId,
     result,
     error,
     loading,
     bouts,
     startBattle,
+    retryLastBattle,
     swapPlayers,
     resetHistory,
   }

@@ -22,7 +22,7 @@ export function BattleForm({
   return (
     <form
       onSubmit={onSubmit}
-      className="mb-3.5 grid grid-cols-1 items-end gap-3.5 border border-line bg-panel p-4.5 sm:grid-cols-[1fr_auto_1fr]"
+      className="mb-3.5 grid grid-cols-1 items-end gap-3.5 border border-line bg-panel p-3.5 sm:grid-cols-[1fr_auto_1fr] sm:p-4.5"
     >
       <label className="flex min-w-0 flex-col gap-2">
         <span className="font-display text-[0.82rem] font-bold tracking-[0.16em] text-dim uppercase">

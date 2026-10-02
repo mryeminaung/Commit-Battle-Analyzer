@@ -1,3 +1,4 @@
+import { useCountUp } from "../hooks/useCountUp"
 import type { BattleProfile, BattleResult } from "../lib/types"
 
 type ScoreStripProps = {
@@ -13,23 +14,25 @@ function ScoreSide({
   isWinner: boolean
   align: "left" | "right"
 }) {
+  const animatedScore = useCountUp(profile.powerScore)
+
   return (
     <div
       className={`flex min-w-0 flex-col gap-0.5 ${
         align === "right"
           ? "items-end text-right max-sm:items-center max-sm:text-center"
-          : ""
+          : "max-sm:items-center max-sm:text-center"
       }`}
     >
       <span className="max-w-full truncate font-display text-[0.75rem] font-semibold tracking-[0.18em] text-dim uppercase">
         {profile.login}
       </span>
       <span
-        className={`font-display text-[clamp(2rem,4vw,2.8rem)] leading-none font-extrabold tabular-nums ${
+        className={`font-display text-[clamp(1.75rem,5vw,2.8rem)] leading-none font-extrabold tabular-nums ${
           isWinner ? "text-amber" : "text-ink"
         }`}
       >
-        {profile.powerScore}
+        {animatedScore}
       </span>
     </div>
   )
@@ -37,7 +40,7 @@ function ScoreSide({
 
 export function ScoreStrip({ result }: ScoreStripProps) {
   return (
-    <div className="grid grid-cols-1 items-center gap-1.5 border-b border-line bg-deep px-4.5 py-3.5 max-sm:text-center sm:grid-cols-[1fr_auto_1fr] sm:gap-3">
+    <div className="grid grid-cols-1 items-center gap-1.5 border-b border-line bg-deep px-3.5 py-3.5 max-sm:text-center sm:grid-cols-[1fr_auto_1fr] sm:gap-3 sm:px-4.5">
       <ScoreSide
         profile={result.left}
         isWinner={result.winner === "left"}

@@ -1,4 +1,6 @@
+import { readCachedProfile, writeCachedProfile } from "./cache"
 import { githubToken } from "./env"
+import { RateLimitError } from "./errors"
 import { MOCK_PROFILES } from "./mocks"
 import { buildScoreBreakdown, computePowerScore } from "./scores"
 import type {
@@ -14,6 +16,9 @@ const githubHeaders: Record<string, string> = {
 if (githubToken) {
   githubHeaders.Authorization = `Bearer ${githubToken}`
 }
+
+const isRateLimitedResponse = (response: Response): boolean =>
+  response.status === 403 || response.status === 429
 
 export const normalizeLogin = (input: string): string =>
   input.trim().replace(/^@/, "").replace(/\s+/g, "")
@@ -80,6 +85,11 @@ export const fetchBattleProfile = async (
     return MOCK_PROFILES[key]
   }
 
+  const cached = readCachedProfile(normalized)
+  if (cached) {
+    return cached
+  }
+
   try {
     const [userResponse, repoResponse] = await Promise.all([
       fetch(`https://api.github.com/users/${normalized}`, {
@@ -90,6 +100,10 @@ export const fetchBattleProfile = async (
       }),
     ])
 
+    if (isRateLimitedResponse(userResponse) || isRateLimitedResponse(repoResponse)) {
+      throw new RateLimitError()
+    }
+
     if (!userResponse.ok) {
       throw new Error(`GitHub user "${normalized}" could not be found.`)
     }
@@ -99,8 +113,14 @@ export const fetchBattleProfile = async (
       ? ((await repoResponse.json()) as RepoResponse[])
       : []
 
-    return buildBattleProfile(user, repoData.length)
+    const profile = buildBattleProfile(user, repoData.length)
+    writeCachedProfile(profile)
+    return profile
   } catch (error) {
+    if (error instanceof RateLimitError) {
+      throw error
+    }
+
     const fallback = MOCK_PROFILES[key]
     if (fallback) {
       return fallback
