@@ -14,6 +14,15 @@ export type RepoResponse = {
   id: number
 }
 
+export type ScoreBreakdown = {
+  repoScore: number
+  followerScore: number
+  activityScore: number
+  repoWeight: number
+  followerWeight: number
+  activityWeight: number
+}
+
 export type BattleProfile = {
   login: string
   name: string
@@ -26,6 +35,7 @@ export type BattleProfile = {
   accountAgeDays: number
   activityScore: number
   powerScore: number
+  scoreBreakdown: ScoreBreakdown
 }
 
 export type BattleSide = "left" | "right"
@@ -35,4 +45,16 @@ export type BattleResult = {
   right: BattleProfile
   winner: BattleSide | "draw"
   summary: string
+}
+
+export type BoutRecord = {
+  id: string
+  leftLogin: string
+  rightLogin: string
+  leftName: string
+  rightName: string
+  leftScore: number
+  rightScore: number
+  winner: BattleSide | "draw"
+  at: number
 }

@@ -1,22 +1,68 @@
 @import "tailwindcss";
 
 @theme {
-  --color-charcoal: #14161a;
-  --color-deep: #0f1114;
-  --color-panel: #1b1e24;
-  --color-panel-2: #22262e;
-  --color-line: #3a404a;
-  --color-line-strong: #565e6b;
-  --color-ink: #f2efe6;
-  --color-ink-dim: #c5c9d1;
-  --color-dim: #8a919e;
-  --color-amber: #f5a623;
-  --color-amber-hot: #ffb84a;
-  --color-amber-deep: #c47f0d;
-  --color-score-red: #d64545;
-
   --font-display: "Barlow Condensed", "Arial Narrow", Impact, sans-serif;
   --font-body: "Barlow", system-ui, -apple-system, sans-serif;
+}
+
+@theme inline {
+  --color-bg: var(--c-bg);
+  --color-deep: var(--c-deep);
+  --color-panel: var(--c-panel);
+  --color-panel-2: var(--c-panel-2);
+  --color-line: var(--c-line);
+  --color-line-strong: var(--c-line-strong);
+  --color-ink: var(--c-ink);
+  --color-ink-dim: var(--c-ink-dim);
+  --color-dim: var(--c-dim);
+  --color-amber: var(--c-amber);
+  --color-amber-fill: var(--c-amber-fill);
+  --color-amber-fill-hover: var(--c-amber-fill-hover);
+  --color-amber-fill-active: var(--c-amber-fill-active);
+  --color-on-amber: var(--c-on-amber);
+  --color-score-red: var(--c-score-red);
+}
+
+/* Dark (default) — retro scoreboard night */
+:root {
+  color-scheme: dark;
+
+  --c-bg: #14161a;
+  --c-deep: #0f1114;
+  --c-panel: #1b1e24;
+  --c-panel-2: #22262e;
+  --c-line: #3a404a;
+  --c-line-strong: #565e6b;
+  --c-ink: #f2efe6;
+  --c-ink-dim: #c5c9d1;
+  --c-dim: #8a919e;
+  --c-amber: #f5a623;
+  --c-amber-fill: #f5a623;
+  --c-amber-fill-hover: #ffb84a;
+  --c-amber-fill-active: #c47f0d;
+  --c-on-amber: #14161a;
+  --c-score-red: #d64545;
+}
+
+/* Light — warm broadcast paper (when .dark is not on <html>) */
+:root:not(.dark) {
+  color-scheme: light;
+
+  --c-bg: #f2efe6;
+  --c-deep: #e7e2d6;
+  --c-panel: #fffcf5;
+  --c-panel-2: #f7f3ea;
+  --c-line: #cfc6b4;
+  --c-line-strong: #8d8474;
+  --c-ink: #14161a;
+  --c-ink-dim: #3c4048;
+  --c-dim: #6d655a;
+  --c-amber: #b45309;
+  --c-amber-fill: #f5a623;
+  --c-amber-fill-hover: #e09410;
+  --c-amber-fill-active: #c47f0d;
+  --c-on-amber: #14161a;
+  --c-score-red: #b33030;
 }
 
 body {
@@ -25,7 +71,7 @@ body {
   min-height: 100vh;
   font-family: var(--font-body);
   color: var(--color-ink);
-  background-color: var(--color-charcoal);
+  background-color: var(--color-bg);
   font-synthesis: none;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
@@ -42,4 +88,8 @@ body::before {
   opacity: 0.045;
   background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
   background-size: 180px 180px;
+}
+
+:root:not(.dark) body::before {
+  opacity: 0.035;
 }

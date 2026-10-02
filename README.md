@@ -1,75 +1,77 @@
-# React + TypeScript + Vite
+# Commit Battle Analyzer
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Put two GitHub profiles head-to-head and see who wins on public signals — repos, audience reach, activity — on a retro sports scoreboard.
 
-Currently, two official plugins are available:
+## Quick start
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
-
-## React Compiler
-
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
-
-## Expanding the ESLint configuration
-
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
-
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
-
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-
+```bash
+pnpm install
+pnpm dev
 ```
 
-You can also install [eslint-plugin-react-x](https://npmx.dev/package/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://npmx.dev/package/eslint-plugin-react-dom) for React-specific lint rules:
+Open the URL Vite prints (usually `http://localhost:3000`).
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+Other scripts:
 
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-
+```bash
+pnpm build    # typecheck + production build
+pnpm preview  # serve the production build
+pnpm lint     # ESLint
 ```
+
+## How it works
+
+1. Enter two GitHub usernames (or click a preset matchup).
+2. The app loads each profile from the GitHub API (demo matchups use local mock data).
+3. Power / activity scores are derived from public profile stats.
+4. The board shows the score strip, winner banner, and side-by-side cards.
+
+Mock logins resolve instantly without hitting the API: `torvalds`, `dan-abramov`, `yyx990803`, `rich-harris`, `microsoft`, `gaearon`.
+
+## Features
+
+- **Shareable battles** — matchups sync to the URL as `?a=torvalds&b=dan-abramov`
+- **Swap players** — button next to Battle, or press `S` outside inputs
+- **Loading skeleton** — scoreboard-shaped placeholder while data loads
+- **Recent bouts** — last 6 battles stored in `sessionStorage`; click to replay, Clear to wipe
+- **Explain score** — expand a card to see how power was calculated (repos / followers / activity weights)
+- **Light / dark mode** — toggle in the top bar; preference is saved and applied before first paint
+
+## Optional GitHub token
+
+Unauthenticated GitHub API calls are limited to **60/hour**. A token raises that to **5000/hour**.
+
+```bash
+cp .env.example .env
+# edit .env and set VITE_GITHUB_TOKEN=ghp_...
+```
+
+Restart `pnpm dev` after changing env files.
+
+> **Note:** Vite inlines `VITE_*` values into the client bundle. Anyone who opens DevTools can read the token. Fine for local/demo use; if you ship this publicly with a real token, proxy the GitHub calls through a backend instead.
+
+`.env` and `secrets/` are gitignored. Only commit `.env.example`.
+
+## Design
+
+Retro scoreboard look — flat surfaces, amber accents, condensed broadcast type. Dark is the default; light mode uses a warm paper palette with the same layout.
+
+| Token | Dark | Light |
+| --- | --- | --- |
+| Background | `#14161A` | `#F2EFE6` |
+| Panel | `#1B1E24` | `#FFFCF5` |
+| Ink | `#F2EFE6` | `#14161A` |
+| Amber (text) | `#F5A623` | `#B45309` |
+| Amber (fill) | `#F5A623` | `#F5A623` |
+| Score red | `#D64545` | `#B33030` |
+
+- **Type:** Barlow Condensed (display) + Barlow (body)
+- **Tailwind v4** via `@tailwindcss/vite`; semantic tokens switch on `html.dark` (`@theme inline` + CSS variables in `src/index.css`)
+- Theme stored in `localStorage` (`cba:theme`); first visit follows `prefers-color-scheme`
+- No gradients, glows, or glassmorphism — hard borders and solid blocks only
+
+## Stack
+
+- React 19 + TypeScript
+- Vite 8
+- Tailwind CSS 4

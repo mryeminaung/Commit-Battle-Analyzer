@@ -1,5 +1,6 @@
 import { githubToken } from "./env"
 import { MOCK_PROFILES } from "./mocks"
+import { buildScoreBreakdown, computePowerScore } from "./scores"
 import type {
   BattleProfile,
   GitHubUserResponse,
@@ -39,9 +40,10 @@ export const buildBattleProfile = (
     100,
     Math.round((user.followers / 150000) * 100),
   )
-  const powerScore = Math.min(
-    100,
-    Math.round(repoScore * 0.4 + followerScore * 0.25 + activityScore * 0.35),
+  const powerScore = computePowerScore(
+    repoScore,
+    followerScore,
+    activityScore,
   )
 
   return {
@@ -56,6 +58,11 @@ export const buildBattleProfile = (
     accountAgeDays,
     activityScore,
     powerScore,
+    scoreBreakdown: buildScoreBreakdown(
+      repoScore,
+      followerScore,
+      activityScore,
+    ),
   }
 }
 

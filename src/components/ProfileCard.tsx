@@ -1,4 +1,5 @@
-import type { BattleProfile, BattleSide } from "../lib/types"
+import { useState } from "react"
+import type { BattleProfile, BattleSide, ScoreBreakdown } from "../lib/types"
 
 type ProfileCardProps = {
   profile: BattleProfile
@@ -40,7 +41,7 @@ function MetricBar({
       </div>
       <div className="h-2.5 overflow-hidden border border-line bg-deep">
         <div
-          className={`h-full ${muted ? "bg-ink-dim" : "bg-amber"}`}
+          className={`h-full ${muted ? "bg-line-strong" : "bg-amber-fill"}`}
           style={{ width: `${value}%` }}
         />
       </div>
@@ -48,7 +49,65 @@ function MetricBar({
   )
 }
 
+function MathRow({
+  label,
+  weight,
+  score,
+}: {
+  label: string
+  weight: number
+  score: number
+}) {
+  return (
+    <li className="flex items-baseline justify-between gap-3 border-b border-line pb-1.5 last:border-b-0 last:pb-0">
+      <span className="font-display text-[0.78rem] font-semibold tracking-[0.1em] text-dim uppercase">
+        {label}{" "}
+        <span className="text-ink-dim/70 normal-case tracking-normal">
+          ({Math.round(weight * 100)}%)
+        </span>
+      </span>
+      <strong className="font-display text-[1rem] font-bold tabular-nums text-ink">
+        {score}
+      </strong>
+    </li>
+  )
+}
+
+function ScoreMath({ breakdown }: { breakdown: ScoreBreakdown }) {
+  return (
+    <div className="mb-4 border border-line bg-deep p-3">
+      <p className="mb-2 font-display text-[0.72rem] font-bold tracking-[0.16em] text-dim uppercase">
+        How power was calculated
+      </p>
+      <ul className="space-y-1.5">
+        <MathRow
+          label="Repos"
+          weight={breakdown.repoWeight}
+          score={breakdown.repoScore}
+        />
+        <MathRow
+          label="Followers"
+          weight={breakdown.followerWeight}
+          score={breakdown.followerScore}
+        />
+        <MathRow
+          label="Activity"
+          weight={breakdown.activityWeight}
+          score={breakdown.activityScore}
+        />
+      </ul>
+      <p className="mt-2.5 font-display text-[0.82rem] font-semibold tracking-[0.04em] text-ink-dim">
+        repos×{breakdown.repoWeight.toFixed(2)} + followers×
+        {breakdown.followerWeight.toFixed(2)} + activity×
+        {breakdown.activityWeight.toFixed(2)}
+      </p>
+    </div>
+  )
+}
+
 export function ProfileCard({ profile, side, isWinner }: ProfileCardProps) {
+  const [showMath, setShowMath] = useState(false)
+
   return (
     <article
       className={`flex-1 bg-panel p-4.5 ${
@@ -68,7 +127,7 @@ export function ProfileCard({ profile, side, isWinner }: ProfileCardProps) {
               {side === "left" ? "Player One" : "Player Two"}
             </span>
             {isWinner && (
-              <span className="ml-2 inline-block bg-amber px-2 py-0.5 font-display text-[0.68rem] font-extrabold tracking-[0.16em] text-charcoal uppercase align-middle">
+              <span className="ml-2 inline-block bg-amber-fill px-2 py-0.5 font-display text-[0.68rem] font-extrabold tracking-[0.16em] text-on-amber uppercase align-middle">
                 Champion
               </span>
             )}
@@ -108,6 +167,17 @@ export function ProfileCard({ profile, side, isWinner }: ProfileCardProps) {
 
       <MetricBar label="Power rating" value={profile.powerScore} />
       <MetricBar label="Activity" value={profile.activityScore} muted />
+
+      <button
+        type="button"
+        onClick={() => setShowMath((open) => !open)}
+        aria-expanded={showMath}
+        className="mt-3 w-full cursor-pointer rounded-[2px] border border-line bg-transparent px-3 py-2 font-display text-[0.78rem] font-bold tracking-[0.14em] text-dim uppercase transition-colors hover:border-amber hover:text-amber"
+      >
+        {showMath ? "Hide score breakdown" : "Explain score"}
+      </button>
+
+      {showMath && <ScoreMath breakdown={profile.scoreBreakdown} />}
     </article>
   )
 }

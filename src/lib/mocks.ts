@@ -1,3 +1,4 @@
+import { buildScoreBreakdown } from "./scores"
 import type { BattleProfile } from "./types"
 
 export const MOCK_PROFILES: Record<string, BattleProfile> = {
@@ -13,6 +14,7 @@ export const MOCK_PROFILES: Record<string, BattleProfile> = {
     accountAgeDays: 12000,
     activityScore: 96,
     powerScore: 98,
+    scoreBreakdown: buildScoreBreakdown(100, 98, 96),
   },
   "dan-abramov": {
     login: "dan-abramov",
@@ -26,6 +28,7 @@ export const MOCK_PROFILES: Record<string, BattleProfile> = {
     accountAgeDays: 6400,
     activityScore: 91,
     powerScore: 94,
+    scoreBreakdown: buildScoreBreakdown(100, 90, 91),
   },
   yyx990803: {
     login: "yyx990803",
@@ -39,6 +42,7 @@ export const MOCK_PROFILES: Record<string, BattleProfile> = {
     accountAgeDays: 8200,
     activityScore: 94,
     powerScore: 96,
+    scoreBreakdown: buildScoreBreakdown(100, 92, 94),
   },
   "rich-harris": {
     login: "rich-harris",
@@ -52,6 +56,7 @@ export const MOCK_PROFILES: Record<string, BattleProfile> = {
     accountAgeDays: 6300,
     activityScore: 88,
     powerScore: 90,
+    scoreBreakdown: buildScoreBreakdown(95, 85, 88),
   },
   microsoft: {
     login: "microsoft",
@@ -65,6 +70,7 @@ export const MOCK_PROFILES: Record<string, BattleProfile> = {
     accountAgeDays: 15000,
     activityScore: 97,
     powerScore: 99,
+    scoreBreakdown: buildScoreBreakdown(100, 100, 97),
   },
   gaearon: {
     login: "gaearon",
@@ -78,5 +84,6 @@ export const MOCK_PROFILES: Record<string, BattleProfile> = {
     accountAgeDays: 6200,
     activityScore: 89,
     powerScore: 92,
+    scoreBreakdown: buildScoreBreakdown(100, 85, 89),
   },
 }
